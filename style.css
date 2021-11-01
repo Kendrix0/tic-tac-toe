@@ -1,0 +1,14 @@
+.gameboard {
+    width: 306px;
+    height: 306px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.space {
+    width: 100px;
+    height: 100px;
+    border: 1px solid black;
+    text-align: center;
+    margin: 0;
+}

@@ -1,20 +1,32 @@
+const X = document.querySelector('#X');
+const O = document.querySelector('#O');
+const startMenu = document.getElementById('start')
+X.onclick = () => {
+    displayController.init('X', 'O');
+    startMenu.style.zIndex = '-1'
+}
+
+O.onclick = () => {
+    displayController.init('O', 'X');
+    startMenu.style.zIndex = '-1'
+}
+
 const displayController = (() => {    
     const resetBtn = document.querySelector('.reset');
     const spaces = document.querySelectorAll('.space');
-    let turn = 0 
-    let p1, p2, currentPlayer, currentSign
+    let turn = 0
 
-    const init = () => {
-        initPlayers();
+    const init = (p1Sign, p2Sign) => {
+        initPlayers(p1Sign, p2Sign);
         currentPlayer = p1;
         currentSign = p1.getSign();
         gameBoard.reset();
         updateBoard();
     }
 
-    const initPlayers = () => {
-        p1 = player('Player One', 'X');
-        p2 = player('Player Two', 'O');
+    const initPlayers = (p1Sign, p2Sign) => {
+        p1 = player('Player One', p1Sign);
+        p2 = player('Player Two', p2Sign);
     }
 
     const changePlayer = () => {
@@ -40,14 +52,12 @@ const displayController = (() => {
         space.onclick = () => {
             if (gameBoard.getSpace(space.id[1]) === '') {
                 gameBoard.setSpace(space.id[1], currentSign)
+                changePlayer()
                 updateBoard();
                 if (gameBoard.checkWinner()) {
                     declareWinner(gameBoard.checkWinner());
                     resetGame();
-                } else {
-                    changePlayer();
                 }
-
             }
         };
     });
@@ -63,10 +73,12 @@ const displayController = (() => {
         gameBoard.reset();
         currentPlayer = p1;
         updateBoard();
+        turn = 0;
     }
 
     resetBtn.onclick = () => {
         resetGame();
+        startMenu.style.zIndex = '1'
     }
 
     return {init}
@@ -124,7 +136,6 @@ const gameBoard = (() => {
     return { setSpace, getSpace, reset, checkWinner }
 })();
 
-displayController.init()
 
-//Need to add option for Players to set name and sign. Also need to style.
+//Add more styling
 //Once those are complete, create option to play against AI

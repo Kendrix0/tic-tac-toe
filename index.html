@@ -8,28 +8,42 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class=gameboard>
-        <div class="row">
-            <div class="space" id="s0"></div>
-            <div class="space" id="s1"></div>
-            <div class="space" id="s2"></div>
+    <div id="start">
+        <div class="menu">
+            <p>Player One, choose your sign!</p>
+            <div class="choices">
+                <button class="choice" id="X">X</button>
+                <button class="choice" id="O">O</button>
+            </div>
         </div>
-
-        <div class="row">
-            <div class="space" id="s3"></div>
-            <div class="space" id="s4"></div>
-            <div class="space" id="s5"></div>
+    </div>
+    <div class="game">
+        <div class="gameboard">
+            <div class="row">
+                <div class="space" id="s0"></div>
+                <div class="space" id="s1"></div>
+                <div class="space" id="s2"></div>
+            </div>
+    
+            <div class="row">
+                <div class="space" id="s3"></div>
+                <div class="space" id="s4"></div>
+                <div class="space" id="s5"></div>
+            </div>
+    
+            <div class="row">
+                <div class="space" id="s6"></div>
+                <div class="space" id="s7"></div>
+                <div class="space" id="s8"></div>
+            </div>
         </div>
-
-        <div class="row">
-            <div class="space" id="s6"></div>
-            <div class="space" id="s7"></div>
-            <div class="space" id="s8"></div>
-        </div>
+        
+        <button class=reset>Reset</button>
     </div>
 
 
-    <button class=reset>Reset</button>
+
+
     <script src="app.js"></script>
 </body>
 </html>

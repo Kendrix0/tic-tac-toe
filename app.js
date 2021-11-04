@@ -18,6 +18,8 @@ const displayController = (() => {
     const display = document.querySelector('.display');
     let gameOn = true
     let turn = 0
+    let vsBot = true
+
 
     const init = (p1Sign, p2Sign) => {
         initPlayers(p1Sign, p2Sign);
@@ -32,15 +34,82 @@ const displayController = (() => {
         p2 = player('Player Two', p2Sign);
     }
 
+    const miniMax = (hypoBoard, depth, maxing) => {
+        let winner = displayController.checkWinner(hypoBoard);
+        if (depth == 0 | winner === 'X' | winner === 'O' | winner === 'tie') {
+            if (winner === p1.getSign()) {
+                return 10
+            } else if (winner === p2.getSign()) {
+                return -10
+            } else {
+                return 0
+            }
+        }
+        if (maxing) {
+            let maxedVal = -Infinity
+            for (let i = 0; i < hypoBoard.length; i++) {
+                if (hypoBoard[i] === '') {
+                    hypoBoard[i] = p1.getSign();
+                    let val = miniMax(hypoBoard, depth - 1, true);
+                    console.log(val)
+                    hypoBoard[i] = '';
+                    if (val > maxedVal) {
+                        maxedVal = val;
+                    }
+                }
+            }
+            return maxedVal
+        } else {
+            let minVal = +Infinity
+            for (let i = 0; i < hypoBoard.length; i++) {
+                if (hypoBoard[i] === '') {
+                    hypoBoard[i] = p2.getSign();
+                    let val = miniMax(hypoBoard, depth - 1, false)
+                    hypoBoard[i] = ''
+                    if (val < minVal) {
+                        minVal = val;
+                    }
+                }
+            }
+            return minVal
+        }
+    }
+
+    const findBestMove = (currentBoard) => {
+        let bestVal = +Infinity
+        let bestMove = -1
+
+        for (let i = 0; i < currentBoard.length; i++) {
+            if (currentBoard[i] === '') {
+                currentBoard[i] = p2.getSign();
+                let moveVal = miniMax(currentBoard, 9-turn, true);
+                currentBoard[i] = '';
+                if (moveVal < bestVal) {
+                    bestMove = i;
+                    bestVal = moveVal;
+                }
+            }
+        }
+        return bestMove
+    }
+
+    const aiPlay = (player) => {
+        let bestMove = findBestMove(gameBoard.getBoard());
+        gameBoard.setSpace(bestMove, player.getSign())
+    }
+
+    const changeTurn = () => {
+        turn++
+    }
+
     const changePlayer = () => {
         if (turn%2 === 0) {
-            currentPlayer = p2
-            currentSign = p2.getSign()
-        } else {
             currentPlayer = p1
             currentSign = p1.getSign()
+        } else {
+            currentPlayer = p2
+            currentSign = p2.getSign()
         }
-        turn++
     }
 
     const declareWinner = (sign) => {
@@ -57,11 +126,16 @@ const displayController = (() => {
         space.onclick = () => {
             if (gameOn) {
                 if (gameBoard.getSpace(space.id[1]) === '') {
-                    gameBoard.setSpace(space.id[1], currentSign)
-                    changePlayer()
+                    gameBoard.setSpace(space.id[1], currentSign);
+                    changeTurn();
+                    if (vsBot) {
+                        aiPlay(p2)
+                    } else {
+                        changePlayer();  
+                    }
                     updateBoard();
-                    if (checkWinner()) {
-                        declareWinner(checkWinner());
+                    if (checkWinner(gameBoard.getBoard())) {
+                        declareWinner(checkWinner(gameBoard.getBoard()));
                         resetGame();
                         gameOn = false
                     }
@@ -70,7 +144,7 @@ const displayController = (() => {
         }
     });
 
-    const checkWinner = () => {
+    const checkWinner = (board) => {
         const lines = [
             [0,1,2],
             [3,4,5],
@@ -83,10 +157,8 @@ const displayController = (() => {
         ]
         for (let i = 0; i < lines.length; i++) {
             const [a,b,c] = lines[i];
-            if (gameBoard.getSpace([a]) && gameBoard.getSpace([a]) === gameBoard.getSpace([b]) && gameBoard.getSpace([a]) === gameBoard.getSpace([c])) {
-                return gameBoard.getSpace([a])
-            } else if (turn == 9) {
-                return 'tie'
+            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                return board[a]
             }
         }
         return null
@@ -109,7 +181,6 @@ const displayController = (() => {
 
     resetBtn.onclick = () => {
         resetGame();
-        startMenu.style.zIndex = -1
     }
 
     startBtn.onclick = () => {
@@ -118,7 +189,7 @@ const displayController = (() => {
         gameOn = true
     }
 
-    return {init}
+    return {init, checkWinner, changeTurn, findBestMove}
 })();
 
 const player = (name, sign) => {
@@ -139,20 +210,28 @@ const gameBoard = (() => {
     let board = ['','','','','','','','',''];
     
     const setSpace = (space, sign) => {
-        board[space] = sign
+        if (board[space] === "") {
+            board[space] = sign;
+        }
     }
 
     const getSpace = (space) => {
         return board[space]
     }
 
+    const getBoard = () => {
+        let copyBoard = []
+        for (i = 0; i < 9; i++) {
+            copyBoard.push(board[i])
+        }
+        return copyBoard
+    }
+
     const reset = () => {
         board = ['','','','','','','','','']
     };
 
-    return { setSpace, getSpace, reset }
+    return { setSpace, getSpace, reset, getBoard }
 })();
 
-
-
-//create option to play against AI
+// Need to improve AI functionality

@@ -47,11 +47,10 @@ const displayController = (() => {
         }
         if (maxing) {
             let maxedVal = -Infinity
-            for (let i = 0; i < hypoBoard.length; i++) {
+            for (let i = 0; i < 9; i++) {
                 if (hypoBoard[i] === '') {
                     hypoBoard[i] = p1.getSign();
-                    let val = miniMax(hypoBoard, depth - 1, true);
-                    console.log(val)
+                    let val = miniMax(hypoBoard, depth - 1, false);
                     hypoBoard[i] = '';
                     if (val > maxedVal) {
                         maxedVal = val;
@@ -61,10 +60,10 @@ const displayController = (() => {
             return maxedVal
         } else {
             let minVal = +Infinity
-            for (let i = 0; i < hypoBoard.length; i++) {
+            for (let i = 0; i < 9; i++) {
                 if (hypoBoard[i] === '') {
                     hypoBoard[i] = p2.getSign();
-                    let val = miniMax(hypoBoard, depth - 1, false)
+                    let val = miniMax(hypoBoard, depth - 1, true)
                     hypoBoard[i] = ''
                     if (val < minVal) {
                         minVal = val;
@@ -78,8 +77,15 @@ const displayController = (() => {
     const findBestMove = (currentBoard) => {
         let bestVal = +Infinity
         let bestMove = -1
+        let emptySpaces = [];
+        for (let i = 0; i < 9; i++) {
+            if (currentBoard[i] == '') {
+                emptySpaces.push(i)
+            }
+        }
 
-        for (let i = 0; i < currentBoard.length; i++) {
+
+        for (let i = 0; i < emptySpaces.length; i++) {
             if (currentBoard[i] === '') {
                 currentBoard[i] = p2.getSign();
                 let moveVal = miniMax(currentBoard, 9-turn, true);
@@ -90,6 +96,7 @@ const displayController = (() => {
                 }
             }
         }
+        console.log(bestMove)
         return bestMove
     }
 

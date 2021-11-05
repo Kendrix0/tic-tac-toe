@@ -1,6 +1,9 @@
 const X = document.querySelector('#X');
 const O = document.querySelector('#O');
 const startMenu = document.getElementById('start');
+const toggleAI = document.querySelector('.toggleAI');
+let vsBot = false;
+
 X.onclick = () => {
     displayController.init('X', 'O');
     startMenu.style.display = 'none';
@@ -11,6 +14,16 @@ O.onclick = () => {
     startMenu.style.display = 'none';
 }
 
+toggleAI.onclick = () => {
+    vsBot = !vsBot
+    toggleAI.classList.toggle('aiTrue')
+    if (toggleAI.classList.contains('aiTrue')) {
+        toggleAI.innerHTML = 'VS Computer'
+    } else {
+        toggleAI.innerHTML = 'VS Player 2'
+    }
+}
+
 const displayController = (() => {    
     const resetBtn = document.querySelector('.reset');
     const startBtn = document.querySelector('.start')
@@ -18,7 +31,6 @@ const displayController = (() => {
     const display = document.querySelector('.display');
     let gameOn = true
     let turn = 0
-    let vsBot = true
 
 
     const init = (p1Sign, p2Sign) => {
@@ -77,18 +89,11 @@ const displayController = (() => {
     const findBestMove = (currentBoard) => {
         let bestVal = +Infinity
         let bestMove = -1
-        let emptySpaces = [];
+
         for (let i = 0; i < 9; i++) {
-            if (currentBoard[i] == '') {
-                emptySpaces.push(i)
-            }
-        }
-
-
-        for (let i = 0; i < emptySpaces.length; i++) {
             if (currentBoard[i] === '') {
                 currentBoard[i] = p2.getSign();
-                let moveVal = miniMax(currentBoard, 9-turn, true);
+                let moveVal = miniMax(currentBoard, 9-turn, false);
                 currentBoard[i] = '';
                 if (moveVal < bestVal) {
                     bestMove = i;
@@ -103,10 +108,6 @@ const displayController = (() => {
     const aiPlay = (player) => {
         let bestMove = findBestMove(gameBoard.getBoard());
         gameBoard.setSpace(bestMove, player.getSign())
-    }
-
-    const changeTurn = () => {
-        turn++
     }
 
     const changePlayer = () => {
@@ -134,17 +135,18 @@ const displayController = (() => {
             if (gameOn) {
                 if (gameBoard.getSpace(space.id[1]) === '') {
                     gameBoard.setSpace(space.id[1], currentSign);
-                    changeTurn();
-                    if (vsBot) {
-                        aiPlay(p2)
-                    } else {
-                        changePlayer();  
-                    }
-                    updateBoard();
                     if (checkWinner(gameBoard.getBoard())) {
                         declareWinner(checkWinner(gameBoard.getBoard()));
                         resetGame();
                         gameOn = false
+                    } else {
+                        turn++
+                        if (vsBot) {
+                            aiPlay(p2)
+                        } else {
+                            changePlayer();  
+                        }
+                        updateBoard();
                     }
                 }
             }    
@@ -166,6 +168,8 @@ const displayController = (() => {
             const [a,b,c] = lines[i];
             if (board[a] && board[a] === board[b] && board[a] === board[c]) {
                 return board[a]
+            } else if (turn == 8) {
+                return 'tie'
             }
         }
         return null
@@ -196,7 +200,7 @@ const displayController = (() => {
         gameOn = true
     }
 
-    return {init, checkWinner, changeTurn, findBestMove}
+    return {init, checkWinner, findBestMove}
 })();
 
 const player = (name, sign) => {
@@ -227,11 +231,7 @@ const gameBoard = (() => {
     }
 
     const getBoard = () => {
-        let copyBoard = []
-        for (i = 0; i < 9; i++) {
-            copyBoard.push(board[i])
-        }
-        return copyBoard
+        return board
     }
 
     const reset = () => {
